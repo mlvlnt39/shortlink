@@ -17,16 +17,13 @@ use App\Http\Controllers\LinkController;
 
 Route::get('/', [LinkController::class, 'index'])->name('home');
 Route::get('/create', [LinkController::class, 'create'])->name('links.create');
-Route::post('/', [LinkController::class, 'generate'])->name('links.generate');
-//Route::get('/{code}', [LinkController::class, 'redirect'])->name('redirect');
-//Route::post('/links/generate', 'LinkController@generate')->name('generate');
+Route::get('/{code}', [LinkController::class, 'redirect'])->name('redirect');
+Route::post('/links/generate', 'LinkController@generate')->name('generate');
 //Route::get('/links/{code}', 'LinkController@redirect')->name('redirect');
-//Route::group(['namespace' => 'App\Http\Controllers'], function (){
-//   Route::get('/crt', 'CreateController' )->name('crt.create');
-//});
+Route::group(['namespace' => 'App\Http\Controller\Admin', 'prefix'=>'admin', 'middleware'=>'admin'], function (){
+   Route::get('/', 'AdminController' )->name('admin.index');
+});
 
-
-Route::get('/test', [\App\Http\Controllers\TestController::class, 'test']);
 
 Auth::routes();
 

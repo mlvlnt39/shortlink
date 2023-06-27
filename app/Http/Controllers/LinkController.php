@@ -25,7 +25,7 @@ class LinkController extends Controller
     }
     public function create()
     {
-        return view('generate');
+        return view('create');
     }
     public function generate(Request $request)
     {
