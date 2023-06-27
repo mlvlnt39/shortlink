@@ -1,0 +1,66 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Resources\LinkResource;
+use App\Models\Link;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Str;
+
+class LinkController extends Controller
+{
+    public function index()
+    {
+        $user = Auth::user();
+        if (!isset($user)) {
+            return redirect()->route('login');
+        }
+        $links = Auth::user()->isAdmin()
+            ? Link::all()
+            : Auth::user()->links;
+        //return new LinkResource($links);
+        return view('home', compact('links'));
+    }
+    public function create()
+    {
+        return view('generate');
+    }
+    public function generate(Request $request)
+    {
+
+        $this->validate($request, [
+            'url' => 'required|url',
+        ]);
+
+        $link = new Link();
+        $link->original_url = $request->url;
+        $link->short_code = $this->generateShortCode();
+        $link->user_id = Auth::id();
+        $link->save();
+
+        return redirect()->route('home');
+    }
+
+    public function redirect($code)
+    {
+        $link = Link::where('short_code', $code)->firstOrFail();
+        $link->increment('clicks');
+
+        return Redirect::to($link->original_url);
+    }
+
+    private function generateShortCode()
+    {
+        $length = 6;
+        $code = Str::random($length);
+
+        while (Link::where('short_code', $code)->exists()) {
+            $code = Str::random($length);
+        }
+
+        return $code;
+
+    }
+}
